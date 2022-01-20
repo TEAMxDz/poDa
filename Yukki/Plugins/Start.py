@@ -56,7 +56,7 @@ async def okaybhai(_, CallbackQuery):
     await CallbackQuery.answer("Going Back ...")
     await CallbackQuery.edit_message_text(
         text=f"Thanks for having me in {CallbackQuery.message.chat.title}.\n{MUSIC_BOT_NAME}is alive.\n\nFor any assistance or help, checkout our support group and channel.",
-        reply_markup=InlineKeyboardMarkup(out[1]),
+        
     )
 
 
