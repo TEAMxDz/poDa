@@ -229,7 +229,6 @@ async def initiate_bot():
     console.print(f"\n[red]Poitu Varan da kuthi")
 
 
-home_text_pm = f"""."""
 
 
 @app.on_message(filters.command("sunni") & filters.private)
