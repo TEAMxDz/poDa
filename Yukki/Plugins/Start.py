@@ -21,90 +21,11 @@ from Yukki.Database import (add_nonadmin_chat, add_served_chat,
 from Yukki.Decorators.admins import ActualAdminCB
 from Yukki.Decorators.permission import PermissionCheck
 from Yukki.Inline import (custommarkup, dashmarkup, setting_markup,
-                          setting_markup2, start_pannel, usermarkup, volmarkup)
+                          setting_markup2, usermarkup, volmarkup)
 from Yukki.Utilities.assistant import get_assistant_details
 from Yukki.Utilities.ping import get_readable_time
 
 welcome_group = 2
-
-__MODULE__ = "Essentials"
-__HELP__ = """
-
-
-/start 
-- Start the Bot.
-
-
-/help 
-- Get Commands Helper Menu.
-
-
-/settings 
-- Get Settings button.
-"""
-
-
-@app.on_message(filters.new_chat_members, group=welcome_group)
-async def welcome(_, message: Message):
-    chat_id = message.chat.id
-    if await is_served_chat(chat_id):
-        pass
-    else:
-        await add_served_chat(chat_id)
-    for member in message.new_chat_members:
-        try:
-            if member.id == BOT_ID:
-                if chat_id in await blacklisted_chats():
-                    await message.reply_text(
-                        f"Hushh, Your chat group[{message.chat.title}] has been blacklisted!\n\nAsk any Sudo User to whitelist your chat"
-                    )
-                    return await app.leave_chat(chat_id)
-                _assistant = await get_assistant(message.chat.id, "assistant")
-                if not _assistant:
-                    ran_ass = random.choice(random_assistant)
-                    assis = {
-                        "saveassistant": ran_ass,
-                    }
-                    await save_assistant(message.chat.id, "assistant", assis)
-                else:
-                    ran_ass = _assistant["saveassistant"]
-                (
-                    ASS_ID,
-                    ASS_NAME,
-                    ASS_USERNAME,
-                    ASS_ACC,
-                ) = await get_assistant_details(ran_ass)
-                out = start_pannel()
-                await message.reply_text(
-                    f"Welcome To {MUSIC_BOT_NAME}\n\nPromote me as administrator in your group otherwise I will not function properly.\n\nAssistant Username:- @{ASS_USERNAME}\nAssistant ID:- {ASS_ID}",
-                    reply_markup=InlineKeyboardMarkup(out[1]),
-                )
-            if member.id in ASSIDS:
-                return await remove_active_chat(chat_id)
-            if member.id in OWNER_ID:
-                return await message.reply_text(
-                    f"{MUSIC_BOT_NAME}'s Owner[{member.mention}] has just joined your chat."
-                )
-            if member.id in SUDOERS:
-                return await message.reply_text(
-                    f"A member of {MUSIC_BOT_NAME}'s Sudo User[{member.mention}] has just joined your chat."
-                )
-            return
-        except:
-            return
-
-
-@app.on_message(filters.command(["help", "start"]) & filters.group)
-@PermissionCheck
-async def useradd(_, message: Message):
-    out = start_pannel()
-    await asyncio.gather(
-        message.delete(),
-        message.reply_text(
-            f"Thanks for having me in {message.chat.title}.\n{MUSIC_BOT_NAME} is alive.\n\nFor any assistance or help, checkout our support group and channel.",
-            reply_markup=InlineKeyboardMarkup(out[1]),
-        ),
-    )
 
 
 @app.on_message(filters.command("settings") & filters.group)
@@ -133,7 +54,6 @@ async def settings(_, message: Message):
 @app.on_callback_query(filters.regex("okaybhai"))
 async def okaybhai(_, CallbackQuery):
     await CallbackQuery.answer("Going Back ...")
-    out = start_pannel()
     await CallbackQuery.edit_message_text(
         text=f"Thanks for having me in {CallbackQuery.message.chat.title}.\n{MUSIC_BOT_NAME}is alive.\n\nFor any assistance or help, checkout our support group and channel.",
         reply_markup=InlineKeyboardMarkup(out[1]),
