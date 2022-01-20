@@ -28,7 +28,7 @@ from Yukki.Utilities.inline import paginate_modules
 
 loop = asyncio.get_event_loop()
 console = Console()
-HELPABLE = {}
+
 
 
 async def initiate_bot():
@@ -68,10 +68,10 @@ async def initiate_bot():
             ):
                 imported_module.__MODULE__ = imported_module.__MODULE__
                 if (
-                    hasattr(imported_module, "__HELP__")
-                    and imported_module.__HELP__
+                    hasattr(imported_module, "__PODA__")
+                    and imported_module.__PODA__
                 ):
-                    HELPABLE[
+                    FUCK[
                         imported_module.__MODULE__.lower()
                     ] = imported_module
             console.print(
@@ -226,19 +226,15 @@ async def initiate_bot():
     if STRING5 != "None":
         await pytgcalls5.start()
     await idle()
-    console.print(f"\n[red]Stopping Bot")
+    console.print(f"\n[red]Poitu Varan da kuthi")
 
 
-home_text_pm = f"""Hello ,
-My name is {BOT_NAME}.
-A Telegram Music+Video Streaming bot with some useful features.
-
-All commands can be used with: / """
+home_text_pm = f"""."""
 
 
-@app.on_message(filters.command("help") & filters.private)
-async def help_command(_, message):
-    text, keyboard = await help_parser(message.from_user.mention)
+@app.on_message(filters.command("sunni") & filters.private)
+async def punda_command(_, message):
+    text, keyboard = await punda_parser(message.from_user.mention)
     await app.send_message(message.chat.id, text, reply_markup=keyboard)
 
 
@@ -289,14 +285,7 @@ async def start_command(_, message):
                     LOG_GROUP_ID,
                     f"{message.from_user.mention} has just started bot to check <code>SUDOLIST</code>\n\n**USER ID:** {sender_id}\n**USER NAME:** {sender_name}",
                 )
-        if name == "help":
-            text, keyboard = await help_parser(message.from_user.mention)
-            await message.delete()
-            return await app.send_text(
-                message.chat.id,
-                text,
-                reply_markup=keyboard,
-            )
+ 
         if name[0] == "i":
             m = await message.reply_text("🔎 Fetching Info!")
             query = (str(name)).replace("info_", "", 1)
@@ -369,114 +358,11 @@ async def start_command(_, message):
     return
 
 
-async def help_parser(name, keyboard=None):
-    if not keyboard:
-        keyboard = InlineKeyboardMarkup(paginate_modules(0, HELPABLE, "help"))
-    return (
-        """Hello {first_name},
-
-Click on the buttons for more information.
-
-All commands can be used with: /
-""".format(
-            first_name=name
-        ),
-        keyboard,
-    )
-
-
 @app.on_callback_query(filters.regex("shikhar"))
 async def shikhar(_, CallbackQuery):
-    text, keyboard = await help_parser(CallbackQuery.from_user.mention)
+    text, keyboard = await punda_parser(CallbackQuery.from_user.mention)
     await CallbackQuery.message.edit(text, reply_markup=keyboard)
 
-
-@app.on_callback_query(filters.regex(r"help_(.*?)"))
-async def help_button(client, query):
-    home_match = re.match(r"help_home\((.+?)\)", query.data)
-    mod_match = re.match(r"help_module\((.+?)\)", query.data)
-    prev_match = re.match(r"help_prev\((.+?)\)", query.data)
-    next_match = re.match(r"help_next\((.+?)\)", query.data)
-    back_match = re.match(r"help_back", query.data)
-    create_match = re.match(r"help_create", query.data)
-    top_text = f"""Hello {query.from_user.first_name},
-
-Click on the buttons for more information.
-
-All commands can be used with: /
- """
-    if mod_match:
-        module = mod_match.group(1)
-        text = (
-            "{} **{}**:\n".format(
-                "Here is the help for", HELPABLE[module].__MODULE__
-            )
-            + HELPABLE[module].__HELP__
-        )
-        key = InlineKeyboardMarkup(
-            [
-                [
-                    InlineKeyboardButton(
-                        text="↪️ Back", callback_data="help_back"
-                    ),
-                    InlineKeyboardButton(
-                        text="🔄 Close", callback_data="close"
-                    ),
-                ],
-            ]
-        )
-
-        await query.message.edit(
-            text=text,
-            reply_markup=key,
-            disable_web_page_preview=True,
-        )
-    elif home_match:
-        out = private_panel()
-        await app.send_message(
-            query.from_user.id,
-            text=home_text_pm,
-            reply_markup=InlineKeyboardMarkup(out[1]),
-        )
-        await query.message.delete()
-    elif prev_match:
-        curr_page = int(prev_match.group(1))
-        await query.message.edit(
-            text=top_text,
-            reply_markup=InlineKeyboardMarkup(
-                paginate_modules(curr_page - 1, HELPABLE, "help")
-            ),
-            disable_web_page_preview=True,
-        )
-
-    elif next_match:
-        next_page = int(next_match.group(1))
-        await query.message.edit(
-            text=top_text,
-            reply_markup=InlineKeyboardMarkup(
-                paginate_modules(next_page + 1, HELPABLE, "help")
-            ),
-            disable_web_page_preview=True,
-        )
-
-    elif back_match:
-        await query.message.edit(
-            text=top_text,
-            reply_markup=InlineKeyboardMarkup(
-                paginate_modules(0, HELPABLE, "help")
-            ),
-            disable_web_page_preview=True,
-        )
-
-    elif create_match:
-        text, keyboard = await help_parser(query)
-        await query.message.edit(
-            text=text,
-            reply_markup=keyboard,
-            disable_web_page_preview=True,
-        )
-
-    return await client.answer_callback_query(query.id)
 
 
 if __name__ == "__main__":
